@@ -1,0 +1,29 @@
+name: Scoped token dispatch probe
+
+on:
+  workflow_dispatch:
+
+permissions:
+  actions: write
+
+jobs:
+  dispatch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Request two owned workflow dispatches
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          for workflow in guarded.yml entry.yml; do
+            response="$RUNNER_TEMP/${workflow}.json"
+            http=$(curl --silent --show-error --output "$response" --write-out '%{http_code}' \
+              --request POST \
+              --header "Authorization: Bearer $GH_TOKEN" \
+              --header "Accept: application/vnd.github+json" \
+              --header "X-GitHub-Api-Version: 2026-03-10" \
+              --url "https://api.github.com/repos/$GITHUB_REPOSITORY/actions/workflows/$workflow/dispatches" \
+              --data '{"ref":"main"}')
+            printf '%s dispatch HTTP %s\n' "$workflow" "$http"
+            python3 -c 'import json,sys; d=json.load(open(sys.argv[1])); print("run_id=%s html_url=%s" % (d.get("workflow_run_id"), d.get("html_url")))' "$response"
+          done
