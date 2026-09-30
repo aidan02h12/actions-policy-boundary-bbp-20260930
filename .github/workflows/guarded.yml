@@ -1,0 +1,21 @@
+name: Guarded policy sentinel
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+  workflow_call:
+
+permissions:
+  contents: read
+
+jobs:
+  sentinel:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Record inert execution marker
+        run: |
+          echo 'BOUNTY_GUARDED_SENTINEL_20260929'
+          echo 'github.event_name=${{ github.event_name }}'
+          echo 'job.workflow_file_path=${{ job.workflow_file_path }}'
+          echo 'github.workflow_ref=${{ github.workflow_ref }}'
