@@ -1,0 +1,11 @@
+name: Entry policy sentinel
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  invoke:
+    uses: ./.github/workflows/guarded.yml
